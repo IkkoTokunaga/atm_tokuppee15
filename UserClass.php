@@ -27,17 +27,15 @@ class User {
         }
         return $exist;
     }
-
-    public static function inputUser ($id)
+//////////メソッド名修正
+    public static function getUserById ($id)
     {
         $id = (int)$id;
         return self::$user_list[$id];
     }
-////////入れてみました！
-    public static function updateBalance ($total)
+    public static function updateBalance ($id, $total)
     {
-        self::$user_list["balance"] = $total;
-        //var_dump(self::$user_list["balance"]);
+        self::$user_list[$id]["balance"] = $total;
     }
 
     

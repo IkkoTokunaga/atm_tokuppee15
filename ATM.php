@@ -13,6 +13,7 @@ class ATM
     const YES = "0";
     const NO = "1";
     private $total = 0;
+    private $id;
     public $user;
 
     public function __construct()
@@ -23,13 +24,22 @@ class ATM
     public function login()
     {
         $id = $this->inputId();
-        $user = User::inputUser($id);
+        $user = User::getUserById($id);
         $confim_pass = $this->confirmPass($user);
         if ($confim_pass === true) {
             $this->user = $user;
+            $this->id = $id;
         }
         $this->total = (int)$this->user["balance"];
         echo "login!!" . $this->user["name"] . "さん" . PHP_EOL . PHP_EOL;
+
+        $this->main();
+    }
+/////////logout追加
+    public function logout ()
+    {
+        $this->user = [];
+        $this->login();
     }
 
     public function inputId()
@@ -58,6 +68,7 @@ class ATM
 
     public function main()
     {
+        
         $this->selectMenu();
         $continu = $this->continuing();
         if ($continu === true) {
@@ -65,9 +76,10 @@ class ATM
         }
         if ($continu === false) {
             $total = $this->total;
-            User::updateBalance($total);
-            echo "終了" . PHP_EOL;
-            exit;
+            $id = $this->id;
+            User::updateBalance($id, $total);
+            echo "logout!!" . PHP_EOL;
+            $this->logOut();
         }
     }
 
@@ -141,7 +153,7 @@ class ATM
     {
         echo "続けて操作" . PHP_EOL;
         echo "YES => '0'" . PHP_EOL;
-        echo "NO  => '1'" . PHP_EOL;
+        echo "LogOut  => '1'" . PHP_EOL;
         $continu = trim(fgets(STDIN));
         if ($continu === self::YES) {
             return true;
