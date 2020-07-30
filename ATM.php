@@ -1,6 +1,7 @@
 <?php
 
 require('userClass.php');
+require('check.php');
 
 class ATM
 {
@@ -35,7 +36,6 @@ class ATM
 
         $this->main();
     }
-/////////logout追加
     public function logout ()
     {
         $this->user = [];
@@ -89,7 +89,10 @@ class ATM
         echo "引き出し=>'1'" . PHP_EOL;
         echo "預け入れ=>'2'" . PHP_EOL;
         $select = $this->inputAction();
-
+        $check = selectMenuValidation::check($select);
+        if ($check === false) {
+            return $this->selectMenu();
+        }
         switch ($select) {
             case self::ATM_ACTIONS["TOTAL"]:
                 $this->showTotal();
@@ -108,9 +111,6 @@ class ATM
     public function inputAction()
     {
         $select = trim(fgets(STDIN));
-        if ($this->check($select) === false) {
-            return $this->selectMenu();
-        }
         return $select;
     }
 
@@ -125,11 +125,8 @@ class ATM
         echo "引き出し" . PHP_EOL;
         echo "金額を入力 : ¥";
         $money = (int)trim(fgets(STDIN));
-        if ($this->total - $money < 0) {
-            echo "【　残高不足　】" . PHP_EOL;
-            return $this->withdraw();
-        }
-        $check = $this->check_money($money);
+        $total = $this->total;
+        $check = withdrawValidation::check($money, $total);
         if ($check === false) {
             return $this->withdraw();
         }
@@ -142,7 +139,7 @@ class ATM
         echo "預け入れ" . PHP_EOL;
         echo "金額を入力 : ¥";
         $money = (int)trim(fgets(STDIN));
-        $check = $this->check_money($money);
+        $check = depositValidation::check($money);
         if ($check === false) {
             return $this->deposit();
         }
@@ -155,33 +152,16 @@ class ATM
         echo "YES => '0'" . PHP_EOL;
         echo "LogOut  => '1'" . PHP_EOL;
         $continu = trim(fgets(STDIN));
+        $check = continuingValidation::check($continu);
+        if ($check === false) {
+            return $this->continuing();
+        }
         if ($continu === self::YES) {
             return true;
         }
         if ($continu === self::NO) {
             return false;
         }
-        return $this->continuing();
     }
 
-    public function check($select)
-    {
-        if (array_search($select, self::ATM_ACTIONS) === false) {
-            echo "【　入力ミス　】" . PHP_EOL;
-            return false;
-        }
-        return true;
-    }
-
-
-    public function check_money($money)
-    {
-        if ($money < 1) {
-            return false;
-        }
-        if (!is_int($money)) {
-            return false;
-        }
-        return true;
-    }
 }

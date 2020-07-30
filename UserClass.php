@@ -27,7 +27,6 @@ class User {
         }
         return $exist;
     }
-//////////メソッド名修正
     public static function getUserById ($id)
     {
         $id = (int)$id;
