@@ -10,19 +10,18 @@ class ATM
         "WITHDRAW" => "1",
         "DEPOSIT" => "2",
     ];
-
     const YES = "0";
     const NO = "1";
     private $total = 0;
     private $id;
-    public $user;
+    private $user;
 
     public function __construct()
     {
         $this->login();
     }
 
-    public function login()
+    private function login()
     {
         $id = $this->inputId();
         $user = User::getUserById($id);
@@ -36,13 +35,13 @@ class ATM
 
         $this->main();
     }
-    public function logout ()
+    private function logout()
     {
         $this->user = [];
         $this->login();
     }
 
-    public function inputId()
+    private function inputId()
     {
         echo "id入力 : ";
         $id = trim(fgets(STDIN));
@@ -54,7 +53,7 @@ class ATM
         return $id;
     }
 
-    public function confirmPass($user)
+    private function confirmPass($user)
     {
         $user_pass = $user["password"];
         echo "password入力 : ";
@@ -68,7 +67,7 @@ class ATM
 
     public function main()
     {
-        
+
         $this->selectMenu();
         $continu = $this->continuing();
         if ($continu === true) {
@@ -83,14 +82,16 @@ class ATM
         }
     }
 
-    public function selectMenu()
+    private function selectMenu()
     {
         echo "残高照会=>'0'" . PHP_EOL;
         echo "引き出し=>'1'" . PHP_EOL;
         echo "預け入れ=>'2'" . PHP_EOL;
         $select = $this->inputAction();
-        $check = selectMenuValidation::check($select);
-        if ($check === false) {
+        $check = new selectMenuValidation();
+        $flag = $check->check($select);
+        if ($flag !== true) {
+            $check->getErrorMessages();
             return $this->selectMenu();
         }
         switch ($select) {
@@ -108,52 +109,58 @@ class ATM
         }
     }
 
-    public function inputAction()
+    private function inputAction()
     {
         $select = trim(fgets(STDIN));
         return $select;
     }
 
-    public function showTotal()
+    private function showTotal()
     {
         echo "残高照会" . PHP_EOL;
         echo "¥" . $this->total . PHP_EOL;
     }
 
-    public function withdraw()
+    private function withdraw()
     {
         echo "引き出し" . PHP_EOL;
         echo "金額を入力 : ¥";
-        $money = (int)trim(fgets(STDIN));
+        $money = trim(fgets(STDIN));
         $total = $this->total;
-        $check = withdrawValidation::check($money, $total);
-        if ($check === false) {
+        $check = new withdrawValidation();
+        $flag = $check->check($money, $total);
+        if ($flag !== true) {
+            $check->getErrorMessages();
             return $this->withdraw();
         }
         $this->total -= $money;
     }
 
 
-    public function deposit()
+    private function deposit()
     {
         echo "預け入れ" . PHP_EOL;
         echo "金額を入力 : ¥";
-        $money = (int)trim(fgets(STDIN));
-        $check = depositValidation::check($money);
-        if ($check === false) {
+        $money = trim(fgets(STDIN));
+        $check = new depositValidation();
+        $flag = $check->check($money);
+        if ($flag !== true) {
+            $check->getErrorMessages();
             return $this->deposit();
         }
         $this->total += $money;
     }
 
-    public function continuing()
+    private function continuing()
     {
         echo "続けて操作" . PHP_EOL;
         echo "YES => '0'" . PHP_EOL;
         echo "LogOut  => '1'" . PHP_EOL;
         $continu = trim(fgets(STDIN));
-        $check = continuingValidation::check($continu);
-        if ($check === false) {
+        $check = new continuingValidation();
+        $flag = $check->check($continu);
+        if ($flag !== true) {
+            $check->getErrorMessages();
             return $this->continuing();
         }
         if ($continu === self::YES) {
@@ -163,5 +170,4 @@ class ATM
             return false;
         }
     }
-
 }
