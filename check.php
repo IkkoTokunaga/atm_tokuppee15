@@ -13,7 +13,6 @@ class validation {
     }
 
 }
-///親クラスを定義して継承してみました
 class selectMenuValidation extends validation
 {
 
